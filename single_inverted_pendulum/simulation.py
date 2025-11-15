@@ -3,6 +3,9 @@ import pybullet_data
 import time
 import math
 
+# Model reference
+# https://scaron.info/robotics/wheeled-inverted-pendulum-model.html
+
 # 1. Connect
 p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
