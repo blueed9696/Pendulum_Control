@@ -2,6 +2,7 @@ import pybullet as p
 import pybullet_data
 import time
 import math
+from model import Model
 
 # Model reference
 # https://scaron.info/robotics/wheeled-inverted-pendulum-model.html
@@ -15,11 +16,15 @@ p.setRealTimeSimulation(0)
 # 2. Ground
 p.loadURDF("plane.urdf")
 
+# 10. Simulation loop
+dt = 1.0 / 24000
+
 # 3. Pendulum parameters
-L = 1.0           # rod length
-ball_radius = 0.05 
-ball_mass = 1.0 
-rod_thickness = 0.01
+model = Model()
+L = model.rod_length
+ball_radius = model.ball_radius
+ball_mass = model.ball_mass
+rod_thickness = model.rod_thickness
 
 # 4. Collision for rod and ball
 rod_collision = p.createCollisionShape(
@@ -109,16 +114,17 @@ p.setJointMotorControl2(
 )
 
 # 9. Give initial angle
-p.resetJointState(pendulum, 0, math.radians(170))
+p.resetJointState(pendulum, 0, math.radians(0))
 
-# 10. Simulation loop
-dt = 1.0 / 24000
+from controller import Controller
+controller = Controller(dt)
+
 while True:
     p.stepSimulation()
 
     # Get joint state: joint angle = theta (from vertical)
     joint_state = p.getJointState(pendulum, 0)
-    theta = joint_state[0] + math.pi  # radians
+    theta = math.pi - joint_state[0] # radians
 
     x0, y0, z0 = base_pos   # pivot position
     print(f"theta = {theta*180/math.pi}")
@@ -126,5 +132,13 @@ while True:
     x_ball = x0 + L * math.cos(math.pi/2 - theta)
     y_ball = y0
     z_ball = L * math.sin(math.pi/2 - theta)
+
+
+    p.setJointMotorControl2(
+        pendulum,
+        0,                       
+        p.TORQUE_CONTROL,
+        force=controller.PD_control(theta, theta_des = 0)
+    )
 
     time.sleep(dt)
