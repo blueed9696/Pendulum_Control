@@ -1,4 +1,4 @@
-# Pendulum Control
+# Pendulum Control (PD, LQR, ~MPC - coming soon~)
 
 Single inverted pendulum simulation and control using the PyBullet physics engine.
 
