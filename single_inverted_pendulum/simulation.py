@@ -11,26 +11,25 @@ import time
 import math
 from model import Model
 
-# 1. Connect
+# Connect
 p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, -9.81)
 p.setRealTimeSimulation(0)
 
-# 2. Ground
 p.loadURDF("plane.urdf")
 
-# 10. Simulation loop
+# Control/Simulation loop
 dt = 1.0 / 2400
 
-# 3. Pendulum parameters
+# Pendulum parameters
 model = Model()
 L = model.rod_length
 ball_radius = model.ball_radius
 ball_mass = model.ball_mass
 rod_thickness = model.rod_thickness
 
-# 4. Collision for rod and ball
+# Collision for rod and ball
 rod_collision = p.createCollisionShape(
     p.GEOM_CAPSULE,
     radius=rod_thickness,
@@ -43,12 +42,12 @@ ball_collision = p.createCollisionShape(
     radius=ball_radius
 )
 
-# 5. Base anchor (massless)
+# Base anchor (massless)
 base_mass = 0
 base_pos = [0, 0, L*2]   # pivot point
 base_ori = [0, 0, 0, 1]
 
-# 6. Define two links:
+# Define two links:
 #    Link 0: massless rod
 #    Link 1: massive ball at the end of the rod
 link_masses = [
@@ -89,7 +88,7 @@ link_joint_axes = [
     [0, 0, 0]        
 ]
 
-# 7. Create multibody system
+# Create multibody system
 pendulum = p.createMultiBody(
     baseMass=base_mass,
     baseCollisionShapeIndex=-1,
@@ -108,7 +107,7 @@ pendulum = p.createMultiBody(
     linkJointAxis=link_joint_axes
 )
 
-# 8. Disable motor → free pendulum
+# Disable motor → free pendulum
 p.setJointMotorControl2(
     pendulum,
     0,                       
@@ -116,7 +115,7 @@ p.setJointMotorControl2(
     force=0
 )
 
-# 9. Give initial angle
+# Give initial angle
 p.resetJointState(pendulum, 0, targetValue = math.pi-math.radians(30))
 
 from controller import Controller
@@ -133,21 +132,21 @@ while True:
     theta = math.pi - q # radians
 
     # PD Controller
-    # tau = controller.PD_control(theta, -q_dot)
-    # p.setJointMotorControl2(
-    #     pendulum,
-    #     0,                       
-    #     p.TORQUE_CONTROL,
-    #     force = tau
-    # )
-
-    # LQR Controller
-    tau = controller.LQR(theta, -joint_state[1])
+    tau = controller.PD_control(theta, -q_dot)
     p.setJointMotorControl2(
         pendulum,
         0,                       
         p.TORQUE_CONTROL,
-        force = -tau)
+        force = tau
+    )
+
+    # LQR Controller
+    # tau = controller.LQR(theta, -joint_state[1])
+    # p.setJointMotorControl2(
+    #     pendulum,
+    #     0,                       
+    #     p.TORQUE_CONTROL,
+    #     force = -tau)
 
     print(f"theta = {theta*180/math.pi:.2f} deg, tau = {tau:.2f}")
     time.sleep(dt)
