@@ -7,6 +7,7 @@ Single inverted pendulum simulation and control using the PyBullet physics engin
 ![alt text](model.jpeg )
 
 The model is linearized at $\theta \approx 0$ for LQR controller.
+
 $$
 \dot{x} = A x + B u, \quad
 x = \begin{bmatrix}\theta \\ \dot{\theta}\end{bmatrix}, \;
