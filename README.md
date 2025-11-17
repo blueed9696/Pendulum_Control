@@ -2,10 +2,14 @@
 
 Single inverted pendulum simulation and control using the PyBullet physics engine.
 
+![](assets/LQR.gif)
+
+**Figure 1 : Inverted pendulum stabilized with LQR control**
 
 ## System Modeling
-![alt text](model.jpeg )
 
+![alt text](assets/model.jpeg )
+**Figure 2 : Single inverted pendulum modeling**
 The model is linearized at $\theta \approx 0$ for LQR controller.
 
 $$
