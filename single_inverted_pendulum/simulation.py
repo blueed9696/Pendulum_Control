@@ -17,7 +17,7 @@ p.setRealTimeSimulation(0)
 p.loadURDF("plane.urdf")
 
 # 10. Simulation loop
-dt = 1.0 / 24000
+dt = 1.0 / 2400
 
 # 3. Pendulum parameters
 model = Model()
@@ -30,7 +30,8 @@ rod_thickness = model.rod_thickness
 rod_collision = p.createCollisionShape(
     p.GEOM_CAPSULE,
     radius=rod_thickness,
-    height=L
+    height=L,
+    collisionFramePosition=[0, 0, -L/2]
 )
 
 ball_collision = p.createCollisionShape(
@@ -40,7 +41,7 @@ ball_collision = p.createCollisionShape(
 
 # 5. Base anchor (massless)
 base_mass = 0
-base_pos = [0, 0, 2.0]   # pivot point
+base_pos = [0, 0, L*2]   # pivot point
 base_ori = [0, 0, 0, 1]
 
 # 6. Define two links:
@@ -58,11 +59,9 @@ link_collision = [
 
 link_visual = [-1, -1]
 
-# IMPORTANT: rod origin is at its center → offset by -L/2
-# so the top of the rod coincides with the base (pivot)
 link_positions = [
-    [0, 0, -L/2],   # rod centered below base
-    [0, 0, -(L/2 + rod_thickness + ball_radius)]  
+    [0, 0, 0], 
+    [0, 0, -L]  
 ]
 
 link_orientations = [
@@ -73,7 +72,7 @@ link_orientations = [
 link_inertial_pos = [[0,0,0],[0,0,0]]
 link_inertial_ori = [[0,0,0,1],[0,0,0,1]]
 
-# Joint structure:
+# Joint structure
 link_parents = [0, 1]     
 
 link_joint_types = [
@@ -82,8 +81,8 @@ link_joint_types = [
 ]
 
 link_joint_axes = [
-    [0, 1, 0],         # swing in XZ plane
-    [0, 0, 0]          # fixed joint → no motion
+    [1, 0, 0],       
+    [0, 0, 0]        
 ]
 
 # 7. Create multibody system
@@ -114,7 +113,7 @@ p.setJointMotorControl2(
 )
 
 # 9. Give initial angle
-p.resetJointState(pendulum, 0, math.radians(0))
+p.resetJointState(pendulum, 0, targetValue = math.pi-math.radians(30))
 
 from controller import Controller
 controller = Controller(dt)
@@ -124,21 +123,27 @@ while True:
 
     # Get joint state: joint angle = theta (from vertical)
     joint_state = p.getJointState(pendulum, 0)
-    theta = math.pi - joint_state[0] # radians
+    q = joint_state[0]
+    q_dot = joint_state[1]
 
-    x0, y0, z0 = base_pos   # pivot position
-    print(f"theta = {theta*180/math.pi}")
-    # Ball position:
-    x_ball = x0 + L * math.cos(math.pi/2 - theta)
-    y_ball = y0
-    z_ball = L * math.sin(math.pi/2 - theta)
+    theta = math.pi - q # radians
 
+    # PD Controller
+    # tau = controller.PD_control(theta, -q_dot)
+    # p.setJointMotorControl2(
+    #     pendulum,
+    #     0,                       
+    #     p.TORQUE_CONTROL,
+    #     force = tau
+    # )
 
+    # LQR Controller
+    tau = controller.LQR(theta, -joint_state[1])
     p.setJointMotorControl2(
         pendulum,
         0,                       
         p.TORQUE_CONTROL,
-        force=controller.PD_control(theta, theta_des = 0)
-    )
+        force = -tau)
 
+    print(f"theta = {theta*180/math.pi:.2f} deg, tau = {tau:.2f}")
     time.sleep(dt)
