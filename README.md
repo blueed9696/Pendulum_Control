@@ -54,21 +54,17 @@ PyBullet-based physics simulation
 ## Dependencies
 
 - `pybullet`: Physics simulation engine
+- `numpy`: Calculation
 
 ## Getting Started
 
 1. Install dependencies:
    ```bash
-   pip install pybullet sympy
+   pip install pybullet
+   pip install numpy
    ```
 
 2. Run the simulation:
    ```bash
    python single_inverted_pendulum/simulation.py
    ```
-
-## Notes
-
-- The simulation currently runs the free pendulum (no control torque applied)
-- Initial pendulum angle is set to 170° from vertical
-- Simulation timestep: 1/24000 seconds
