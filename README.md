@@ -1,4 +1,4 @@
-# Pendulum Control (PD, LQR, ~MPC - coming soon~)
+# Pendulum Control (PD, LQR, MPC)
 
 Single inverted pendulum simulation and control using the PyBullet physics engine.
 
@@ -34,7 +34,7 @@ $$
 ```
 single_inverted_pendulum/
 ├── model.py          # System parameters and model definition
-├── controller.py     # Control algorithms (PD control, LQR placeholder)
+├── controller.py     # Control algorithms (PD, LQR, MPC)
 └── simulation.py     # PyBullet physics simulation
 ```
 

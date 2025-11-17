@@ -20,7 +20,7 @@ p.setRealTimeSimulation(0)
 p.loadURDF("plane.urdf")
 
 # Control/Simulation loop
-dt = 1.0 / 2400
+dt = 1.0 / 48000
 
 # Pendulum parameters
 model = Model()
@@ -121,6 +121,16 @@ p.resetJointState(pendulum, 0, targetValue = math.pi-math.radians(30))
 from controller import Controller
 controller = Controller(dt)
 
+text_pos = [0, 0, 2]
+
+theta_text_id = p.addUserDebugText(
+        "theta: 0.00 deg \n torque: 0.00 Nm",
+        text_pos,
+        textColorRGB=[1, 1, 1],
+        textSize=1.5,
+        lifeTime=0
+    )
+
 while True:
     p.stepSimulation()
 
@@ -132,21 +142,39 @@ while True:
     theta = math.pi - q # radians
 
     # PD Controller
-    tau = controller.PD_control(theta, -q_dot)
-    p.setJointMotorControl2(
-        pendulum,
-        0,                       
-        p.TORQUE_CONTROL,
-        force = tau
-    )
+    # tau = controller.PD_control(theta, -q_dot)
+    # p.setJointMotorControl2(
+    #     pendulum,
+    #     0,                       
+    #     p.TORQUE_CONTROL,
+    #     force = tau
+    # )
 
     # LQR Controller
-    # tau = controller.LQR(theta, -joint_state[1])
+    # tau = controller.LQR(theta, -q_dot)
     # p.setJointMotorControl2(
     #     pendulum,
     #     0,                       
     #     p.TORQUE_CONTROL,
     #     force = -tau)
 
-    print(f"theta = {theta*180/math.pi:.2f} deg, tau = {tau:.2f}")
+    # MPC Controller
+    tau = controller.linear_MPC(theta, -q_dot)
+    p.setJointMotorControl2(
+        pendulum,
+        0,
+        p.TORQUE_CONTROL,
+        force=-tau
+    )
+
+    p.addUserDebugText(
+        f"theta: {theta*180/math.pi:5.2f} deg\ntorque: {tau:5.2f} Nm",
+        text_pos,
+        textColorRGB=[1, 1, 1],
+        textSize=1.5,
+        lifeTime=0,
+        replaceItemUniqueId=theta_text_id
+    )
+
+
     time.sleep(dt)
