@@ -1,11 +1,15 @@
+"""
+Single-link inverted pendulum simulation with PD and LQR control.
+
+Author: Jaehyun Park
+GitHub: https://github.com/blueed9696/Pendulum_Control
+License: MIT
+"""
 import pybullet as p
 import pybullet_data
 import time
 import math
 from model import Model
-
-# Model reference
-# https://scaron.info/robotics/wheeled-inverted-pendulum-model.html
 
 # 1. Connect
 p.connect(p.GUI)

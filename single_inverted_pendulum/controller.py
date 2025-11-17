@@ -1,7 +1,13 @@
+"""
+Single-link inverted pendulum simulation with PD and LQR control.
+
+Author: Jaehyun Park
+GitHub: https://github.com/blueed9696/Pendulum_Control
+License: MIT
+"""
 import numpy as np
 from scipy.linalg import solve_continuous_are
 from model import Model
-
 class Controller():
     def __init__(self, dt):
         ############# PD Control #############
