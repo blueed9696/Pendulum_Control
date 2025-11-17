@@ -22,7 +22,7 @@ A = \begin{bmatrix}
 B = \begin{bmatrix}
 0 \\
 \frac{1}{m L^2}
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 ## Project Structure
